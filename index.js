@@ -36,6 +36,7 @@ const endpoints = {
     SINGLE_CHAT: function (orgUUID, chatUUID) {
         return new RequestTypes(this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations/' + chatUUID);
     },
+    SEND_MESSAGE: new RequestTypes(API_BASE_URL + '/append_message'),
 };
 
 const claudejs = {
@@ -88,5 +89,34 @@ const claudejs = {
 
         await Promise.all(chats.map((chat) => endpoints.SINGLE_CHAT(claudejs.orgUUID, chat.uuid).delete()));
         console.log('Deleted all chats');
+    },
+
+    sendMessage: async function (chatIndex, message) {
+        const chats = await claudejs.getAllChatsDetails();
+
+        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (!chats.length) return console.warn('No chats found');
+        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+
+        if (!message) throw new Error('Message must be included');
+        if (!message.length || !message.trim()) throw new Error('Message must not be empty');
+        if (typeof message !== 'string') throw new Error('Message must be a string');
+
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
+        const chatUUID = chats[chatIndex].uuid;
+
+        await endpoints.SEND_MESSAGE.post({
+            body: JSON.stringify({
+                completion: {
+                    prompt: message,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    model: 'claude-2.1',
+                },
+                organization_uuid: claudejs.orgUUID,
+                conversation_uuid: chatUUID,
+                text: message,
+                attachments: [],
+            }),
+        });
     },
 };
