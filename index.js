@@ -26,10 +26,10 @@ class RequestTypes {
     }
 }
 
-const BASE_URL = 'https://claude.ai/api';
+const API_BASE_URL = 'https://claude.ai/api';
 const endpoints = {
-    ACCOUNT: new RequestTypes(BASE_URL + '/account'),
-    ORGANIZATIONS: new RequestTypes(BASE_URL + '/organizations'),
+    ACCOUNT: new RequestTypes(API_BASE_URL + '/account'),
+    ORGANIZATIONS: new RequestTypes(API_BASE_URL + '/organizations'),
     ALL_CHATS: function (orgUUID) {
         return new RequestTypes(this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations');
     },
@@ -39,50 +39,54 @@ const endpoints = {
 };
 
 const claudejs = {
-    getUserDetails: async () => {
-        return await (await endpoints.ACCOUNT.get()).json();
+    orgUUID: undefined,
+
+    getUserDetails: async function () {
+        const userData = await (await endpoints.ACCOUNT.get()).json();
+        if (!claudejs.orgUUID) claudejs.orgUUID = userData.memberships[0].organization.uuid;
+        return userData;
     },
 
-    getAllChatsDetails: async () => {
-        const orgUUID = (await claudejs.getUserDetails()).memberships[0].organization.uuid;
-        return await (await endpoints.ALL_CHATS(orgUUID).get()).json();
+    getAllChatsDetails: async function () {
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
+        return await (await endpoints.ALL_CHATS(claudejs.orgUUID).get()).json();
     },
 
-    getChatMessagesDetails: async (chatIndex) => {
+    getChatMessagesDetails: async function (chatIndex) {
         const chats = await claudejs.getAllChatsDetails();
 
         if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
 
-        const orgUUID = (await claudejs.getUserDetails()).memberships[0].organization.uuid;
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
 
-        return await (await endpoints.SINGLE_CHAT(orgUUID, chatUUID).get()).json();
+        return await (await endpoints.SINGLE_CHAT(claudejs.orgUUID, chatUUID).get()).json();
     },
 
-    deleteChat: async (chatIndex) => {
+    deleteChat: async function (chatIndex) {
         const chats = await claudejs.getAllChatsDetails();
 
         if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
 
-        const orgUUID = (await claudejs.getUserDetails()).memberships[0].organization.uuid;
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
 
-        await endpoints.SINGLE_CHAT(orgUUID, chatUUID).delete();
+        await endpoints.SINGLE_CHAT(claudejs.orgUUID, chatUUID).delete();
         console.log('Chat deleted');
     },
 
-    deleteAllChats: async () => {
-        const chats = await claudejs.getAllChatsDetails();
+    deleteAllChats: async function () {
+        const chats = Array.from(await claudejs.getAllChatsDetails());
 
         if (!chats.length) return console.warn('No chats found');
 
-        const orgUUID = (await claudejs.getUserDetails()).memberships[0].organization.uuid;
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
 
-        chats.forEach(async (chat) => await endpoints.SINGLE_CHAT(orgUUID, chat.uuid).delete());
+        await Promise.all(chats.map((chat) => endpoints.SINGLE_CHAT(claudejs.orgUUID, chat.uuid).delete()));
         console.log('Deleted all chats');
     },
 };
