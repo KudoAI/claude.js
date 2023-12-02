@@ -1,49 +1,98 @@
 class ApiRequestTypes {
-    constructor(url) {
+    /**
+     * @param {String} url The api endpoint to connect to
+     * @param {HeadersInit} headers The headers to add to the request
+     */
+    constructor(url, headers = {}) {
+        if (typeof url !== 'string') throw new Error('Url must be a string');
         this.url = url;
+        if (typeof headers !== 'object') throw new Error('Headers must be an object');
+        this.headers = headers;
         Object.freeze(this);
     }
 
+    /**
+     * Send a request with a given method
+     * @param {String} method The method to use for the request
+     * @param {RequestInit} options The request options
+     * @returns {Promise<Response>} The response object
+     */
     #base(method, options = {}) {
+        if (typeof options !== 'object') throw new Error('Options must be an object');
         if (options?.method) delete options.method;
+
         return fetch(this.url, {
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: this.headers,
             ...options,
         });
     }
 
+    /**
+     * Send a GET request
+     * @param {RequestInit} options The request options
+     * @returns {Promise<Response>} The response object
+     */
     get(options = {}) {
         return this.#base('GET', options);
     }
 
+    /**
+     * Send a POST request
+     * @param {RequestInit} options The request options
+     * @returns {Promise<Response>} The response object
+     */
     post(options = {}) {
         return this.#base('POST', options);
     }
 
+    /**
+     * Send a PUT request
+     * @param {RequestInit} options The request options
+     * @returns {Promise<Response>} The response object
+     */
     put(options = {}) {
         return this.#base('PUT', options);
     }
 
+    /**
+     * Send a DELETE request
+     * @param {RequestInit} options The request options
+     * @returns {Promise<Response>} The response object
+     */
     delete(options = {}) {
         return this.#base('DELETE', options);
     }
 }
 
 const API_BASE_URL = 'https://claude.ai/api';
+const REQUEST_HEADERS = {
+    'content-type': 'application/json',
+    authority: 'claude.ai',
+    accept: '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    dnt: '1',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'navigate',
+    'sec-fetch-site': 'same-origin',
+    'upgrade-insecure-requests': '1',
+    connection: 'keep-alive',
+};
+
 const endpoints = {
-    ACCOUNT: new ApiRequestTypes(API_BASE_URL + '/account'),
-    ORGANIZATIONS: new ApiRequestTypes(API_BASE_URL + '/organizations'),
+    ACCOUNT: new ApiRequestTypes(API_BASE_URL + '/account', REQUEST_HEADERS),
+    ORGANIZATIONS: new ApiRequestTypes(API_BASE_URL + '/organizations', REQUEST_HEADERS),
     ALL_CHATS: function (orgUUID) {
-        return new ApiRequestTypes(this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations');
+        return new ApiRequestTypes(this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations', REQUEST_HEADERS);
     },
     SINGLE_CHAT: function (orgUUID, chatUUID) {
-        return new ApiRequestTypes(this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations/' + chatUUID);
+        return new ApiRequestTypes(
+            this.ORGANIZATIONS.url + '/' + orgUUID + '/chat_conversations/' + chatUUID,
+            REQUEST_HEADERS
+        );
     },
-    SEND_MESSAGE: new ApiRequestTypes(API_BASE_URL + '/append_message'),
-    GENERATE_CHAT_TITLE: new ApiRequestTypes(API_BASE_URL + '/generate_chat_title'),
+    SEND_MESSAGE: new ApiRequestTypes(API_BASE_URL + '/append_message', REQUEST_HEADERS),
+    GENERATE_CHAT_TITLE: new ApiRequestTypes(API_BASE_URL + '/generate_chat_title', REQUEST_HEADERS),
 };
 
 let oldLog = console.log;
