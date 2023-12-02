@@ -320,6 +320,10 @@ const claudejs = {
         else throw new Error("Couldn't update user information");
     },
 
+    /**
+     * Logs the user out of the session
+     * @returns {Promise<void>}
+     */
     logout: async function () {
         if ((await (await endpoints.LOGOUT.post()).json())?.success) console.log('Successfully logged out');
         else throw new Error('Could not log out');
