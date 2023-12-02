@@ -147,7 +147,7 @@ const claudejs = {
         if (!window || !window?.crypto) throw new Error('Cannot get UUID, aborting...');
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
 
-        return await (
+        const chatData = await (
             await endpoints.ALL_CHATS(claudejs.orgUUID).post({
                 body: JSON.stringify({
                     uuid: window.crypto.randomUUID(),
@@ -155,5 +155,8 @@ const claudejs = {
                 }),
             })
         ).json();
+
+        console.log('Chat created successfully with UUID ' + chatData.uuid);
+        return chatData;
     },
 };
