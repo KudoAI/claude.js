@@ -94,6 +94,7 @@ const endpoints = {
     SEND_MESSAGE: new ApiRequestTypes(API_BASE_URL + '/append_message', REQUEST_HEADERS),
     GENERATE_CHAT_TITLE: new ApiRequestTypes(API_BASE_URL + '/generate_chat_title', REQUEST_HEADERS),
     ACCOUNT_AUTH: new ApiRequestTypes(API_BASE_URL + '/auth/current_account', REQUEST_HEADERS),
+    LOGOUT: new ApiRequestTypes(API_BASE_URL + '/auth/logout', REQUEST_HEADERS),
 };
 
 let oldLog = console.log;
@@ -317,5 +318,10 @@ const claudejs = {
                     userData.account.full_name
             );
         else throw new Error("Couldn't update user information");
+    },
+
+    logout: async function () {
+        if ((await (await endpoints.LOGOUT.post()).json())?.success) console.log('Successfully logged out');
+        else throw new Error('Could not log out');
     },
 };
