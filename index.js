@@ -93,6 +93,7 @@ const endpoints = {
     },
     SEND_MESSAGE: new ApiRequestTypes(API_BASE_URL + '/append_message', REQUEST_HEADERS),
     GENERATE_CHAT_TITLE: new ApiRequestTypes(API_BASE_URL + '/generate_chat_title', REQUEST_HEADERS),
+    ACCOUNT_AUTH: new ApiRequestTypes(API_BASE_URL + '/auth/current_account', REQUEST_HEADERS),
 };
 
 let oldLog = console.log;
@@ -288,5 +289,33 @@ const claudejs = {
 
         console.log('Chat created successfully with UUID ' + chatData.uuid);
         return chatData;
+    },
+
+    /**
+     * Update the current user's display name and full name
+     * @param {String} display_name (optional) The new display name
+     * @param {String} full_name (optional) The new full name
+     * @returns {Promise<void>}
+     */
+    updateAccountInfo: async function (display_name = '', full_name = '') {
+        const { display_name: old_display_name, full_name: old_full_name } = await claudejs.getUserDetails();
+
+        const userData = await (
+            await endpoints.ACCOUNT_AUTH.put({
+                body: JSON.stringify({
+                    display_name: display_name || old_display_name,
+                    full_name: full_name || old_full_name,
+                }),
+            })
+        ).json();
+
+        if (userData?.success)
+            console.log(
+                'Successfully updated user information:\n\nDisplay name: ' +
+                    userData.account.display_name +
+                    '\nFull name: ' +
+                    userData.account.full_name
+            );
+        else throw new Error("Couldn't update user information");
     },
 };
