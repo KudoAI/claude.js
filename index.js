@@ -220,7 +220,7 @@ const claudejs = {
     },
 
     /**
-     * Create a new chat
+     * Create a new empty chat
      * @param {String} chatName (optional) The name of the chat
      * @returns {Promise<object>} The details of the new chat
      */
