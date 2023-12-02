@@ -45,6 +45,12 @@ const endpoints = {
     SEND_MESSAGE: new RequestTypes(API_BASE_URL + '/append_message'),
 };
 
+let oldLog = console.log;
+console.log = (...args) => oldLog.apply(console, ['\x1b[32m[INFO]\x1b[0m', ...args]);
+console.warn = (...args) => oldLog.apply(console, ['\x1b[33m[WARN]\x1b[0m', ...args]);
+console.error = (...args) => oldLog.apply(console, ['\x1b[31m[ERROR]\x1b[0m', ...args]);
+console.debug = (...args) => oldLog.apply(console, ['\x1b[36m[DEBUG]\x1b[0m', ...args]);
+
 const claudejs = {
     orgUUID: undefined,
 
