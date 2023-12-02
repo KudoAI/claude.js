@@ -6,7 +6,13 @@ class RequestTypes {
 
     #base(method, options = {}) {
         if (options?.method) delete options.method;
-        return fetch(this.url, { method: method, ...options });
+        return fetch(this.url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            ...options,
+        });
     }
 
     get(options = {}) {
@@ -54,7 +60,7 @@ const claudejs = {
     },
 
     getChatMessagesDetails: async function (chatIndex) {
-        const chats = await claudejs.getAllChatsDetails();
+        const chats = Array.from(await claudejs.getAllChatsDetails());
 
         if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
@@ -67,7 +73,7 @@ const claudejs = {
     },
 
     deleteChat: async function (chatIndex) {
-        const chats = await claudejs.getAllChatsDetails();
+        const chats = Array.from(await claudejs.getAllChatsDetails());
 
         if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
@@ -92,7 +98,7 @@ const claudejs = {
     },
 
     sendMessage: async function (chatIndex, message) {
-        const chats = await claudejs.getAllChatsDetails();
+        const chats = Array.from(await claudejs.getAllChatsDetails());
 
         if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
@@ -116,6 +122,23 @@ const claudejs = {
                 conversation_uuid: chatUUID,
                 text: message,
                 attachments: [],
+            }),
+        });
+    },
+
+    renameChat: async function (chatIndex, newName) {
+        const chats = Array.from(await claudejs.getAllChatsDetails());
+
+        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (!chats.length) return console.warn('No chats found');
+        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
+        const chatUUID = chats[chatIndex].uuid;
+
+        await endpoints.SINGLE_CHAT(claudejs.orgUUID, chatUUID).put({
+            body: JSON.stringify({
+                name: newName,
             }),
         });
     },
