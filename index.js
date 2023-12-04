@@ -330,7 +330,7 @@ const claudejs = {
      * @returns {Promise<void>}
      */
     logout: async function () {
-        if ((await (await endpoints.LOGOUT.post()).json())?.success) console.log('Successfully logged out');
+        if ((await (await endpoints.LOGOUT.post()).json())?.success) return console.log('Successfully logged out');
         else return console.error('Could not log out');
     },
 
