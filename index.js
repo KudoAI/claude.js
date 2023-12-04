@@ -316,7 +316,7 @@ const claudejs = {
         ).json();
 
         if (userData?.success)
-            console.log(
+            return console.log(
                 'Successfully updated user information:\n\nDisplay name: ' +
                     userData.account.display_name +
                     '\nFull name: ' +
