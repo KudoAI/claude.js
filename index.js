@@ -133,6 +133,7 @@ const claudejs = {
     getChatDetails: async function (chatIndex) {
         const chats = await claudejs.getAllChatsDetails();
 
+        if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
@@ -151,6 +152,7 @@ const claudejs = {
     deleteChat: async function (chatIndex) {
         const chats = await claudejs.getAllChatsDetails();
 
+        if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
@@ -186,6 +188,7 @@ const claudejs = {
     sendMessage: async function (chatIndex, message) {
         const chats = await claudejs.getAllChatsDetails();
 
+        if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
@@ -222,6 +225,7 @@ const claudejs = {
     generateChatTitle: async function (chatIndex, messageHint) {
         const chats = await claudejs.getAllChatsDetails();
 
+        if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
@@ -256,6 +260,7 @@ const claudejs = {
     renameChatTitle: async function (chatIndex, newName = '') {
         const chats = await claudejs.getAllChatsDetails();
 
+        if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
