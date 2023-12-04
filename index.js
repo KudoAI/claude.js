@@ -329,6 +329,12 @@ const claudejs = {
         else return console.error('Could not log out');
     },
 
+    /**
+     * Create a new chat and send a first message in it
+     * @param {String} message The message to send in the new chat
+     * @param {String} title (optional) The title of the new chat (generated automatically if not specified)
+     * @returns {Promise<void>}
+     */
     startNewChat: async function (message, title = '') {
         if (!message) return console.error('Message must be included');
         if (typeof message !== 'string') return console.error('Message must be a string');
