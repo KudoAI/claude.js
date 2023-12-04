@@ -18,7 +18,7 @@ class ApiRequestTypes {
      * @returns {Promise<Response>} The response object
      */
     #base(method, options = {}) {
-        if (typeof options !== 'object') throw new Error('Options must be an object');
+        if (typeof options !== 'object') return console.error('Options must be an object');
         if (options?.method) delete options.method;
 
         return fetch(this.url, {
@@ -98,10 +98,10 @@ const endpoints = {
 };
 
 let oldLog = console.log;
-console.log = (...args) => oldLog.apply(console, ['\x1b[32m[INFO]\x1b[0m', ...args]);
-console.warn = (...args) => oldLog.apply(console, ['\x1b[33m[WARN]\x1b[0m', ...args]);
-console.error = (...args) => oldLog.apply(console, ['\x1b[31m[ERROR]\x1b[0m', ...args]);
-console.debug = (...args) => oldLog.apply(console, ['\x1b[36m[DEBUG]\x1b[0m', ...args]);
+console.log = (...args) => oldLog.apply(console, ['\x1b[32m[claude.js >> INFO]\x1b[0m', ...args]);
+console.warn = (...args) => oldLog.apply(console, ['\x1b[33m[claude.js >> WARN]\x1b[0m', ...args]);
+console.error = (...args) => oldLog.apply(console, ['\x1b[31m[claude.js >> ERROR]\x1b[0m', ...args]);
+console.debug = (...args) => oldLog.apply(console, ['\x1b[36m[claude.js >> DEBUG]\x1b[0m', ...args]);
 
 const claudejs = {
     orgUUID: undefined,
@@ -118,11 +118,11 @@ const claudejs = {
 
     /**
      * Get the details of all the chats in the account
-     * @returns {Promise<object>} The details of all the chats
+     * @returns {Promise<object[]>} The details of all the chats
      */
     getAllChatsDetails: async function () {
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
-        return await (await endpoints.ALL_CHATS(claudejs.orgUUID).get()).json();
+        return Array.from(await (await endpoints.ALL_CHATS(claudejs.orgUUID).get()).json());
     },
 
     /**
@@ -131,11 +131,11 @@ const claudejs = {
      * @returns {Promise<object>} The details of the chat
      */
     getChatDetails: async function (chatIndex) {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
-        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
-        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+        if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
@@ -149,11 +149,11 @@ const claudejs = {
      * @returns {Promise<void>}
      */
     deleteChat: async function (chatIndex) {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
-        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
-        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+        if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
@@ -167,7 +167,7 @@ const claudejs = {
      * @returns {Promise<void>}
      */
     deleteAllChats: async function () {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
         if (!chats.length) return console.warn('No chats found');
 
@@ -184,15 +184,15 @@ const claudejs = {
      * @returns {Promise<void>}
      */
     sendMessage: async function (chatIndex, message) {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
-        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
-        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+        if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
-        if (!message) throw new Error('Message must be included');
-        if (typeof message !== 'string') throw new Error('Message must be a string');
-        if (!message.length || !message.trim()) throw new Error('Message must not be empty');
+        if (!message) return console.error('Message must be included');
+        if (typeof message !== 'string') return console.error('Message must be a string');
+        if (!message.length || !message.trim()) return console.error('Message must not be empty');
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
@@ -220,15 +220,15 @@ const claudejs = {
      * @returns {Promise<String>} The new chat title
      */
     generateChatTitle: async function (chatIndex, messageHint) {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
-        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
-        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+        if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
-        if (!messageHint) throw new Error('Message hint is required');
-        if (typeof messageHint !== 'string') throw new Error('Message hint must be a string');
-        if (!messageHint.length || !messageHint.trim()) throw new Error('Message hint must not be empty');
+        if (!messageHint) return console.error('Message hint is required');
+        if (typeof messageHint !== 'string') return console.error('Message hint must be a string');
+        if (!messageHint.length || !messageHint.trim()) return console.error('Message hint must not be empty');
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
@@ -254,11 +254,11 @@ const claudejs = {
      * @returns {Promise<void>}
      */
     renameChatTitle: async function (chatIndex, newName = '') {
-        const chats = Array.from(await claudejs.getAllChatsDetails());
+        const chats = await claudejs.getAllChatsDetails();
 
-        if (typeof chatIndex !== 'number') throw new Error('Chat index must be a number');
+        if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
-        if (chatIndex < 0 || chatIndex >= chats.length) throw new Error('Chat index is out of bounds');
+        if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
@@ -272,18 +272,18 @@ const claudejs = {
 
     /**
      * Create a new empty chat
-     * @param {String} chatName (optional) The name of the chat
+     * @param {String} chatTitle (optional) The name of the chat
      * @returns {Promise<object>} The details of the new chat
      */
-    createChat: async function (chatName = '') {
-        if (!window || !window?.crypto) throw new Error('Cannot get UUID, aborting...');
+    createEmptyChat: async function (chatTitle = '') {
+        if (!window || !window?.crypto) return console.error('Cannot get UUID, aborting...');
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
 
         const chatData = await (
             await endpoints.ALL_CHATS(claudejs.orgUUID).post({
                 body: JSON.stringify({
                     uuid: window.crypto.randomUUID(),
-                    name: chatName,
+                    name: chatTitle,
                 }),
             })
         ).json();
@@ -317,7 +317,7 @@ const claudejs = {
                     '\nFull name: ' +
                     userData.account.full_name
             );
-        else throw new Error("Couldn't update user information");
+        else return console.error("Couldn't update user information");
     },
 
     /**
@@ -326,6 +326,24 @@ const claudejs = {
      */
     logout: async function () {
         if ((await (await endpoints.LOGOUT.post()).json())?.success) console.log('Successfully logged out');
-        else throw new Error('Could not log out');
+        else return console.error('Could not log out');
+    },
+
+    startNewChat: async function (message, title = '') {
+        if (!message) return console.error('Message must be included');
+        if (typeof message !== 'string') return console.error('Message must be a string');
+        if (!message.length || !message.trim()) return console.error('Message must not be empty');
+
+        if (title && typeof title !== 'string') return console.error('Title must be a string');
+
+        if (!claudejs.orgUUID) await claudejs.getUserDetails();
+
+        const { uuid: chatUUID } = await claudejs.createEmptyChat(title);
+        const chatIndex = (await claudejs.getAllChatsDetails()).findIndex((chat) => chat.uuid === chatUUID);
+
+        if (!title) await claudejs.generateChatTitle(chatIndex, message);
+
+        await claudejs.sendMessage(chatIndex, message);
+        console.log('Chat started successfully');
     },
 };
