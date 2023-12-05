@@ -338,7 +338,7 @@ const claudejs = {
      * Create a new chat and send a first message in it
      * @param {String} message The message to send in the new chat
      * @param {String} title (optional) The title of the new chat (generated automatically if not specified)
-     * @returns {Promise<void>}
+     * @returns {Promise<object>} The details of the new chat
      */
     startNewChat: async function (message, title = '') {
         if (!message) return console.error('Message must be included');
@@ -349,12 +349,14 @@ const claudejs = {
 
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
 
-        const { uuid: chatUUID } = await claudejs.createEmptyChat(title);
-        const chatIndex = (await claudejs.getAllChatsDetails()).findIndex((chat) => chat.uuid === chatUUID);
+        const chatData = await claudejs.createEmptyChat(title);
+        const chatIndex = (await claudejs.getAllChatsDetails()).findIndex((chat) => chat.uuid === chatData.uuid);
 
         if (!title) await claudejs.generateChatTitle(chatIndex, message);
 
         await claudejs.sendMessage(chatIndex, message);
+
         console.log('Chat started successfully');
+        return chatData;
     },
 };
