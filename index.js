@@ -221,7 +221,7 @@ const claudejs = {
             return (await response.text())
                 .split(/[\r\n]+/) // split by new lines
                 .filter((dataString) => !!dataString) // remove possible 'undefined' values
-                .map((dataString) => JSON.parse(dataString.split('data: ')[1]).completion) // parse the JSON after the 'data: ' string and the the 'completion' value
+                .map((dataString) => JSON.parse(dataString.split('data: ')[1]).completion) // parse the JSON after the 'data: ' string and get the 'completion' value
                 .join('') // join the strings
                 .trim(); // remove possible leading and trailing white spaces
     },
