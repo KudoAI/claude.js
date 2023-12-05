@@ -183,9 +183,10 @@ const claudejs = {
      * Send a message to a specific chat
      * @param {Number} chatIndex The index of the chat to send the message to
      * @param {String} message The message to send
-     * @returns {Promise<void>}
+     * @param {Boolean} returnResponse (optional) Whether to return the AI's response or not. Defaults to false
+     * @returns {Promise<String|void>}
      */
-    sendMessage: async function (chatIndex, message) {
+    sendMessage: async function (chatIndex, message, returnResponse = false) {
         const chats = await claudejs.getAllChatsDetails();
 
         if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
@@ -197,10 +198,12 @@ const claudejs = {
         if (typeof message !== 'string') return console.error('Message must be a string');
         if (!message.length || !message.trim()) return console.error('Message must not be empty');
 
+        if (typeof returnResponse !== 'boolean') return console.error('returnResponse must be a boolean value');
+
         if (!claudejs.orgUUID) await claudejs.getUserDetails();
         const chatUUID = chats[chatIndex].uuid;
 
-        await endpoints.SEND_MESSAGE.post({
+        const response = await endpoints.SEND_MESSAGE.post({
             body: JSON.stringify({
                 completion: {
                     prompt: message,
@@ -213,6 +216,14 @@ const claudejs = {
                 attachments: [],
             }),
         });
+
+        if (returnResponse)
+            return (await response.text())
+                .split(/[\r\n]+/) // split by new lines
+                .filter((dataString) => !!dataString) // remove possible 'undefined' values
+                .map((dataString) => JSON.parse(dataString.split('data: ')[1]).completion) // parse the JSON after the 'data: ' string and the the 'completion' value
+                .join('') // join the strings
+                .trim(); // remove possible leading and trailing white spaces
     },
 
     /**
