@@ -370,4 +370,27 @@ const claudejs = {
         console.log('Chat started successfully');
         return chatData;
     },
+
+    prepareFile: function (file) {
+        return new Promise(function (resolve, reject) {
+            if (!file instanceof File) reject('file must be of type File');
+            const reader = new FileReader();
+
+            reader.addEventListener(
+                'load',
+                () => {
+                    resolve({
+                        extracted_content: reader.result,
+                        file_name: file.name,
+                        file_size: file.size,
+                        file_type: file.type,
+                    });
+                },
+                false
+            );
+
+            if (file) reader.readAsText(file);
+            else reject('Missing file');
+        });
+    },
 };
