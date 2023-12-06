@@ -310,18 +310,18 @@ const claudejs = {
 
     /**
      * Update the current user's display name and full name
-     * @param {String} display_name (optional) The new display name
-     * @param {String} full_name (optional) The new full name
+     * @param {String} displayName (optional) The new display name
+     * @param {String} fullName (optional) The new full name
      * @returns {Promise<void>}
      */
-    updateAccountInfo: async function (display_name = '', full_name = '') {
+    updateAccountInfo: async function (displayName = '', fullName = '') {
         const { display_name: old_display_name, full_name: old_full_name } = await claudejs.getUserDetails();
 
         const userData = await (
             await endpoints.ACCOUNT_AUTH.put({
                 body: JSON.stringify({
-                    display_name: display_name || old_display_name,
-                    full_name: full_name || old_full_name,
+                    display_name: displayName || old_display_name,
+                    full_name: fullName || old_full_name,
                 }),
             })
         ).json();
