@@ -371,26 +371,42 @@ const claudejs = {
         return chatData;
     },
 
-    prepareFile: function (file) {
-        return new Promise(function (resolve, reject) {
-            if (!file instanceof File) reject('file must be of type File');
-            const reader = new FileReader();
+    /**
+     * Transform a text-based file into a format readable by the AI
+     * @param {File[] | FileList} files The list of files to transform
+     * @returns {Promise<object[]>} The files transformed into a format readable by the AI
+     */
+    prepareFile: async function (files) {
+        if (!Array.isArray(files)) files = Array.of(files);
+        files = Array.from(...files);
 
-            reader.addEventListener(
-                'load',
-                () => {
-                    resolve({
-                        extracted_content: reader.result,
-                        file_name: file.name,
-                        file_size: file.size,
-                        file_type: file.type,
-                    });
-                },
-                false
-            );
+        if (!files || !Array.isArray(files) || (Array.isArray(files) && !files.length))
+            return console.error('Please provide at least one file');
+        if (!files.every((element) => element instanceof File))
+            return console.error('files must be an array of File items');
 
-            if (file) reader.readAsText(file);
-            else reject('Missing file');
+        files = files.map((file) => {
+            return new Promise(function (resolve, reject) {
+                const reader = new FileReader();
+
+                reader.addEventListener(
+                    'load',
+                    () => {
+                        resolve({
+                            extracted_content: reader.result,
+                            file_name: file.name,
+                            file_size: file.size,
+                            file_type: file.type,
+                        });
+                    },
+                    false
+                );
+
+                if (file) reader.readAsText(file);
+                else reject('Missing file');
+            });
         });
+
+        return await Promise.all(files);
     },
 };
