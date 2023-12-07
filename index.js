@@ -391,7 +391,7 @@ const claudejs = {
 
     /**
      * Transform a text-based file into a format readable by the AI
-     * @param {File[] | FileList} files The list of files to transform
+     * @param {File | File[] | FileList} files The list of files to transform
      * @returns {Promise<object[]>} The files transformed into a format readable by the AI
      */
     prepareFiles: async function (files) {
