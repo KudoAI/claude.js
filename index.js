@@ -182,21 +182,39 @@ const claudejs = {
     /**
      * Send a message to a specific chat
      * @param {Number} chatIndex The index of the chat to send the message to
-     * @param {String} message The message to send
+     * @param {String} message (optional) The message to send. REQUIRED IF NO ATTACHMENTS
+     * @param {object | object[]} attachments The attachments to include in the message (text files, PDFs, etc.). REQUIRED IF NO MESSAGE
      * @param {Boolean} returnResponse (optional) Whether to return the AI's response or not. Defaults to false
      * @returns {Promise<String|void>}
      */
-    sendMessage: async function (chatIndex, message, returnResponse = false) {
+    sendMessage: async function (chatIndex, message = '', attachments = [], returnResponse = false) {
         const chats = await claudejs.getAllChatsDetails();
+
+        if (!Array.isArray(attachments)) attachments = Array.of(attachments);
 
         if (typeof chatIndex !== 'number' && !chatIndex) return console.error('Chat index must be specified');
         if (typeof chatIndex !== 'number') return console.error('Chat index must be a number');
         if (!chats.length) return console.warn('No chats found');
         if (chatIndex < 0 || chatIndex >= chats.length) return console.error('Chat index is out of bounds');
 
+        if (!message && !attachments.length) return console.error('Either message or attachments must be included');
+
         if (!message) return console.error('Message must be included');
         if (typeof message !== 'string') return console.error('Message must be a string');
         if (!message.length || !message.trim()) return console.error('Message must not be empty');
+
+        if (
+            !attachments.every(
+                (attachment) =>
+                    typeof attachment === 'object' &&
+                    attachment?.extracted_content &&
+                    attachment?.file_name &&
+                    attachment?.file_size &&
+                    attachment?.file_type &&
+                    Object.keys(attachment).length === 4
+            )
+        )
+            console.error('Invalid attachments');
 
         if (typeof returnResponse !== 'boolean') return console.error('returnResponse must be a boolean value');
 
@@ -206,14 +224,14 @@ const claudejs = {
         const response = await endpoints.SEND_MESSAGE.post({
             body: JSON.stringify({
                 completion: {
-                    prompt: message,
+                    prompt: message || '',
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     model: 'claude-2.1',
                 },
                 organization_uuid: claudejs.orgUUID,
                 conversation_uuid: chatUUID,
-                text: message,
-                attachments: [],
+                text: message || '',
+                attachments: attachments || [],
             }),
         });
 
