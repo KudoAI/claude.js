@@ -376,7 +376,7 @@ const claudejs = {
      * @param {File[] | FileList} files The list of files to transform
      * @returns {Promise<object[]>} The files transformed into a format readable by the AI
      */
-    prepareFile: async function (files) {
+    prepareFiles: async function (files) {
         if (!Array.isArray(files)) files = Array.of(files);
         files = Array.from(...files);
 
