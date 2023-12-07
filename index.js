@@ -199,9 +199,8 @@ const claudejs = {
 
         if (!message && !attachments.length) return console.error('Either message or attachments must be included');
 
-        if (!message) return console.error('Message must be included');
-        if (typeof message !== 'string') return console.error('Message must be a string');
-        if (!message.length || !message.trim()) return console.error('Message must not be empty');
+        if (message && typeof message !== 'string') return console.error('Message must be a string');
+        if (message && (!message.length || !message.trim())) return console.error('Message must not be empty');
 
         if (
             !attachments.every(
