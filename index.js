@@ -206,10 +206,10 @@ const claudejs = {
             !attachments.every(
                 (attachment) =>
                     typeof attachment === 'object' &&
-                    attachment?.extracted_content &&
-                    attachment?.file_name &&
-                    attachment?.file_size &&
-                    attachment?.file_type &&
+                    attachment?.extracted_content !== undefined &&
+                    attachment?.file_name !== undefined &&
+                    attachment?.file_size !== undefined &&
+                    attachment?.file_type !== undefined &&
                     Object.keys(attachment).length === 4
             )
         )
