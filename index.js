@@ -224,7 +224,7 @@ const claudejs = {
             body: JSON.stringify({
                 completion: {
                     prompt: message || '',
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezone: 'America/New_York',
                     model: 'claude-2.1',
                 },
                 organization_uuid: claudejs.orgUUID,
